@@ -13,6 +13,7 @@
   function initializeRetellClient() {
     // Create the call button
     const button = document.createElement('div');
+    button.id = 'midpilot-chat-button';
     // Set button styles
     Object.assign(button.style, {
       position: 'fixed',
