@@ -1,5 +1,7 @@
 // retell-client.js
 (function () {
+  console.log('midpilot.js script is running'); // Debugging step 1
+
   document.addEventListener('DOMContentLoaded', function() {
     // Get the current script tag and extract the agentId
     const scriptTag = document.currentScript || document.querySelector('script[agent-id]');
@@ -12,9 +14,13 @@
 
     // Function to initialize the Retell client
     function initializeRetellClient() {
+      console.log('initializeRetellClient called'); // Debugging step 4
+
       // Create the call button
       const button = document.createElement('div');
       button.id = 'midpilot-chat-button';
+      console.log('Button created:', button); // Debugging step 2
+
       // Set button styles
       Object.assign(button.style, {
         position: 'fixed',
@@ -178,15 +184,18 @@
       });
 
       document.body.appendChild(button);
+      console.log('Button appended to body'); // Debugging step 3
     }
 
     // Load the Retell Frontend SDK if not already loaded
     if (typeof RetellWebClient === 'undefined') {
+      console.log('Loading RetellWebClient SDK'); // Debugging step 5
       const sdkScript = document.createElement('script');
       sdkScript.src = 'https://www.npmjs.com/package/retell-client-js-sdk';
       sdkScript.onload = initializeRetellClient;
       document.head.appendChild(sdkScript);
     } else {
+      console.log('RetellWebClient already defined'); // Debugging step 7
       initializeRetellClient();
     }
   });
