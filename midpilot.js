@@ -183,7 +183,7 @@
     // Load the Retell Frontend SDK if not already loaded
     if (typeof RetellWebClient === 'undefined') {
       const sdkScript = document.createElement('script');
-      sdkScript.src = 'https://cdn.retellai.com/client-sdk/retell-client-js-sdk.js';
+      sdkScript.src = 'https://www.npmjs.com/package/retell-client-js-sdk';
       sdkScript.onload = initializeRetellClient;
       document.head.appendChild(sdkScript);
     } else {
