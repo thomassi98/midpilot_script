@@ -70,16 +70,32 @@ function initializeRetellClient(agentId) {
   const phoneOffIcon = createElement(PhoneOff).outerHTML;
   const loaderIcon = createElement(Loader).outerHTML;
 
+  // Add this CSS rule for the spinning animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #midpilot-chat-button .spin {
+      animation: spin 1s linear infinite;
+    }
+  `;
+  document.head.appendChild(style);
+
   // Update the updateButton function
   function updateButton() {
-    if (isCalling) {
-      buttonIcon.innerHTML = phoneOffIcon;
-      button.style.backgroundColor = '#991b1b';
-    } else if (isConnecting) {
+    if (isConnecting) {
       buttonIcon.innerHTML = loaderIcon;
+      buttonIcon.classList.add('spin');
       button.style.backgroundColor = '#000';
+    } else if (isCalling) {
+      buttonIcon.innerHTML = phoneOffIcon;
+      buttonIcon.classList.remove('spin');
+      button.style.backgroundColor = '#991b1b';
     } else {
       buttonIcon.innerHTML = phoneIcon;
+      buttonIcon.classList.remove('spin');
       button.style.backgroundColor = '#000';
     }
     button.style.pointerEvents = isConnecting ? 'none' : 'auto';
@@ -175,12 +191,20 @@ function initializeRetellClient(agentId) {
   // Mouse enter and leave effects
   button.addEventListener('mouseenter', () => {
     if (!isConnecting) {
-      button.style.backgroundColor = isCalling ? '#000' : '#1f2937';
+      if (isCalling) {
+        button.style.backgroundColor = '#7f1d1d'; // Darker red when hovering during a call
+      } else {
+        button.style.backgroundColor = '#1f2937';
+      }
     }
   });
 
   button.addEventListener('mouseleave', () => {
-    button.style.backgroundColor = isCalling ? '#991b1b' : '#000';
+    if (isCalling) {
+      button.style.backgroundColor = '#991b1b'; // Return to original red when not hovering during a call
+    } else {
+      button.style.backgroundColor = '#000';
+    }
   });
 
   document.body.appendChild(button);
