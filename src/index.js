@@ -31,7 +31,7 @@ import { createElement, createIcons, Phone, PhoneOff, Loader } from 'lucide';
     }
   }
 
-  // Run initialization when DOM is ready
+  // Run  initialization when DOM is ready
   domReady(initialize);
 })();
 
