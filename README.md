@@ -21,7 +21,7 @@ npx webpack
 
 1. Run `npx webpack` to build the project.
 
-2. Then, open `test_dev.html` in your browser. This references the local `dist/midpilot.bundle.js` file.
+2. Then, open `test_dev.html` by right-clicking `test_dev.html` and selecting "Copy path". Then paste the path into your browser. This references the local `dist/midpilot.bundle.js` file.
 
 3. To test on the production environment, open `test_prod.html`. This references the production `midpilot.bundle.js` file. 
 
