@@ -1,9 +1,12 @@
+"use client"  // Add this line at the top of the file
+
 import * as React from "react"
 import { useRef, useEffect, useState } from "react"
 import { motion, useMotionValue, useTransform, useAnimation } from "framer-motion"
-import { X, ChevronRight, ChevronUp, ChevronDown } from "lucide-react"
-import { Button } from "@components/ui/button"
-import { Input } from "@components/ui/input"
+import { X, ChevronRight, ChevronUp, ChevronDown } from "lucide-react" // Removed History import
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import ChatHistory from "./ChatHistory"  // Changed from { ChatHistory }
 
 interface TextModalProps {
   onClose: () => void
@@ -17,7 +20,7 @@ export function TextModal({ onClose, question, isVisible, onAskFollowUp }: TextM
   const sidebarRef = useRef(null)
   const width = useMotionValue(300) // Initial width
   const controls = useAnimation()
-  const [constraints, setConstraints] = useState({ min: 300, max: window.innerWidth })
+  const [constraints, setConstraints] = useState({ min: 300, max: 300 })
   const x = useMotionValue(0)
   const [isMinimized, setIsMinimized] = useState(false)
   const initialWidth = useMotionValue(300)
@@ -26,10 +29,17 @@ export function TextModal({ onClose, question, isVisible, onAskFollowUp }: TextM
   const [followUpQuestion, setFollowUpQuestion] = useState("")
 
   useEffect(() => {
-    if (isVisible) {
-      setPosition({ x: 0, y: 0 }); // Reset position when modal becomes visible
+    // Set constraints after component mounts
+    setConstraints({ min: 300, max: window.innerWidth })
+
+    // Optional: Update constraints on window resize
+    const handleResize = () => {
+      setConstraints({ min: 300, max: window.innerWidth })
     }
-  }, [isVisible]);
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const handleDragEnd = (event: any, info: any) => {
     const newPosition = { x: position.x + info.delta.x, y: position.y + info.delta.y };
@@ -53,7 +63,7 @@ export function TextModal({ onClose, question, isVisible, onAskFollowUp }: TextM
   if (!isVisible) return null;
 
   return (
-    <div ref={constraintsRef} className="fixed inset-0" style={{ zIndex: 10000 }}>
+    <div ref={constraintsRef} className="fixed inset-0 z-40" style={{ zIndex: 10000 }}>
       <motion.div
         ref={sidebarRef}
         style={{ 
@@ -74,32 +84,27 @@ export function TextModal({ onClose, question, isVisible, onAskFollowUp }: TextM
       >
         <div 
           className="bg-gray-100 flex items-center justify-between p-2 h-10 cursor-move"
-          
         >
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={toggleMinimize}
-            className="mr-2"
-          >
-            {isMinimized ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-          </Button>
-          {isMinimized ? (
-            <div className="flex-grow truncate mx-2">
-              
-            </div>
-          ) : (
-            <div className="flex-grow mx-2">
-              <div className="w-full h-1 bg-gray-300 rounded-full" />
-            </div>
-          )}
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={handleClose} // Use handleClose instead of onClose
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={toggleMinimize}
+              className=""
+            >
+              {isMinimized ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            </Button>
+            <ChatHistory /> {/* Replace the History button with ChatHistory component */}
+          </div>
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleClose} // Use handleClose instead of onClose
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         {!isMinimized && (
           <div className="flex flex-col flex-grow overflow-hidden">

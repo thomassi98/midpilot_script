@@ -40,61 +40,67 @@ export function DraggableChat() {
     setQuestion("")
   }
 
-  if (isCalling) {
-    return <CallingModal onClose={handleClose}  /> // Ensure CallingModal has high zIndex
+  const handleCallAI = () => {
+    setIsCalling(true);
+    setOpen(false); // Close the CommandDialog when opening CallingModal
   }
-
-  const toggleTextModal = (questionText: string = "") => {
-    setIsTextModalVisible(!isTextModalVisible);
-    setQuestion(questionText);
-    setOpen(false); // Close the CommandDialog when opening TextModal
-  };
 
   const handleSuggestionClick = (suggestion: string) => {
     toggleTextModal(suggestion);
   };
 
+  const toggleTextModal = (question: string) => {
+    setQuestion(question);
+    setIsTextModalVisible(true);
+    setOpen(false);
+  };
+
+  const handleAskFollowUp = (followUpQuestion: string) => {
+    // Implement the follow-up question logic here
+    console.log("Follow-up question:", followUpQuestion);
+    // You might want to set a new state or trigger an action
+  };
+
   return (
     <>
-      {!isTextModalVisible && (
-        <Button
-          onClick={() => setOpen(true)}
-          variant="default"
-          size="icon"
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            height: '56px',
-            width: '56px',
-            borderRadius: '9999px',
-            backgroundColor: 'black',
-            color: 'white',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            transition: 'background-color 0.2s ease',
-            zIndex: 9999, // Set lower than CallingModal
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1f2937'} // gray-800
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'black'}
-        >
-          <HelpCircle className="h-7 w-7" />
-          <span className="sr-only">Open Help</span>
-        </Button>
-      )}
+      {isCalling && <CallingModal onClose={handleClose} />}
+      <Button
+        onClick={() => setOpen(true)}
+        variant="default"
+        size="icon"
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          height: '56px',
+          width: '56px',
+          borderRadius: '9999px',
+          backgroundColor: 'black',
+          color: 'white',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          transition: 'background-color 0.2s ease',
+          zIndex: 999, // Set lower than CallingModal
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1f2937'} // gray-800
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'black'}
+      >
+        <HelpCircle className="h-7 w-7" />
+        <span className="sr-only">Open Help</span>
+      </Button>
       <CommandDialog open={open && !isTextModalVisible} onOpenChange={setOpen}>
         <div className="flex items-center space-x-4 p-2" style={{ padding: '6px' }}>
           <Button 
             variant="default" 
             size="sm" 
             className="bg-black text-white hover:bg-gray-800"
-            onClick={() => setIsCalling(true)}
+            onClick={handleCallAI} // Use the new handler here
           >
             <Phone className="h-4 w-4 mr-2" />
             Call AI
           </Button>
           <div className="flex flex-1 items-center space-x-2" style={{ paddingLeft: '8px', paddingRight: '24px' }}>
             <CommandInput
-              placeholder="Ask anything about Plaace..."
+              placeholder="Ask anything about Inventory..."
               className="w-full h-9 py-2 px-3 focus:outline-none focus:ring-0 border-none"
               autoFocus
               onKeyDown={(e) => {
@@ -118,25 +124,18 @@ export function DraggableChat() {
           </CommandEmpty>
           <CommandGroup heading="Suggestions">
             <CommandItem 
-              onSelect={() => handleSuggestionClick("How do I get started?")}
-              style={{ cursor: 'pointer' }}
-            >
-              <CornerDownRight className="mr-2 h-4 w-4" />
-              <span>How do I get started?</span>
-            </CommandItem>
-            <CommandItem 
               onSelect={() => handleSuggestionClick("How do I create a dashboard?")}
               style={{ cursor: 'pointer' }}
             >
               <CornerDownRight className="mr-2 h-4 w-4" />
-              <span>How do I create a dashboard?</span>
+              <span>How do I export my data to CSV?</span>
             </CommandItem>
             <CommandItem 
               onSelect={() => handleSuggestionClick("What can I do on area insights?")}
               style={{ cursor: 'pointer' }}
             >
               <CornerDownRight className="mr-2 h-4 w-4" />
-              <span>What can I do on area insights?</span>
+              <span>What can I see on the Analytics page?</span>
             </CommandItem>
           </CommandGroup>
           
@@ -161,10 +160,7 @@ export function DraggableChat() {
           setIsTextModalVisible(false);
           setQuestion("");
         }}
-        onAskFollowUp={() => {
-          // Implement the follow-up question logic here
-          // For example, you might want to set a new state or trigger an action
-        }}
+        onAskFollowUp={handleAskFollowUp}
         question={question}
         isVisible={isTextModalVisible}
       />
