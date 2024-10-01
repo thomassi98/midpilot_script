@@ -7,13 +7,15 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "./", // Add this line
+    "baseUrl": "./",
     "paths": {
+      "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
       "@containers/*": ["src/containers/*"],
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
-      "@services/*": ["src/services/*"]
+      "@services/*": ["src/services/*"],
+      "@lib/*": ["src/lib/*"]
     }
   },
   "include": ["src/**/*"],

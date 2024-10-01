@@ -10,7 +10,7 @@ module.exports = {
       type: 'umd',
     },
   },
-  mode: 'production', // Use 'production' for minified output
+  mode: 'production',
   module: {
     rules: [
       {
@@ -18,17 +18,41 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
-      // Add rules for CSS or other assets if needed
+      {
+        test: /\.css$/,
+        oneOf: [
+          // Handle CSS imports with ?inline
+          {
+            resourceQuery: /inline/,
+            use: 'raw-loader',
+          },
+          // Handle other CSS imports
+          {
+            use: [
+              'style-loader', // Injects styles into the DOM
+              {
+                loader: 'css-loader',
+                options: {
+                  importLoaders: 1,
+                },
+              },
+              'postcss-loader', // Processes Tailwind CSS
+            ],
+          },
+        ],
+      },
     ],
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
+      '@': path.resolve(__dirname, 'src/'),
       '@components': path.resolve(__dirname, 'src/components/'),
       '@containers': path.resolve(__dirname, 'src/containers/'),
       '@styles': path.resolve(__dirname, 'src/styles/'),
       '@utils': path.resolve(__dirname, 'src/utils/'),
       '@services': path.resolve(__dirname, 'src/services/'),
+      '@lib': path.resolve(__dirname, 'src/lib/'),
     },
   },
 };
