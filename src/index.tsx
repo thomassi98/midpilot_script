@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from '@containers/App';
 import { domReady } from '@utils/domReady';
 import { ShadowRootProvider } from '@/ShadowRootContext';
+//import ChatButton from '@components/ChatButton';
 
 // Import the compiled CSS as a string
 import outputCSS from './output.css?inline';
@@ -31,9 +32,12 @@ domReady(() => {
     const root = ReactDOM.createRoot(shadowRoot);
 
     root.render(
-      <ShadowRootProvider shadowRoot={shadowRoot}>
-        <App />
-      </ShadowRootProvider>
+//      <div>
+//        <ChatButton />
+        <ShadowRootProvider shadowRoot={shadowRoot}>
+          <App />
+        </ShadowRootProvider>
+//      </div>
     );
   } catch (error) {
     console.error('Error initializing the React application:', error);

@@ -8,12 +8,14 @@ import { CommandDialog, CommandEmpty, CommandGroup, CommandItem, CommandList, Co
 import { CommandInput } from "cmdk"
 import { CallingModal } from "./CallingModal"
 import { TextModal } from './TextModal'
+import { useCallAI } from '../hooks/useCallAI'
 
 export function DraggableChat() {
   const [open, setOpen] = useState(false)
-  const [isCalling, setIsCalling] = useState(false)
   const [isTextModalVisible, setIsTextModalVisible] = useState(false)
   const [question, setQuestion] = useState("")
+
+  const { isCalling, isConnecting, isMuted, startCall, endCall, toggleMute } = useCallAI();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -23,7 +25,7 @@ export function DraggableChat() {
       } else if (e.key === "Escape") {
         // Reset everything when Esc is pressed
         setOpen(false)
-        setIsCalling(false)
+        endCall()
         setIsTextModalVisible(false)
         setQuestion("")
       }
@@ -34,14 +36,19 @@ export function DraggableChat() {
   }, [])
 
   const handleClose = () => {
-    setIsCalling(false)
-    setOpen(false)
-    setIsTextModalVisible(false)
-    setQuestion("")
+    endCall();
+    setOpen(false);
+    setIsTextModalVisible(false);
+    setQuestion("");
   }
 
   const handleCallAI = () => {
-    setIsCalling(true);
+    if (isConnecting) return;
+    if (isCalling) {
+      endCall();
+    } else {
+      startCall();
+    }
     setOpen(false); // Close the CommandDialog when opening CallingModal
   }
 
@@ -63,7 +70,14 @@ export function DraggableChat() {
 
   return (
     <>
-      {isCalling && <CallingModal onClose={handleClose} />}
+      {(isConnecting || isCalling) && (
+        <CallingModal
+          onClose={handleClose} // Make sure handleClose sets both isCalling and isConnecting to false.
+          isConnecting={isConnecting}
+          isMuted={isMuted}
+          onToggleMute={toggleMute}
+        />
+      )}
       <Button
         onClick={() => setOpen(true)}
         variant="default"
@@ -79,9 +93,9 @@ export function DraggableChat() {
           color: 'white',
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
           transition: 'background-color 0.2s ease',
-          zIndex: 999, // Set lower than CallingModal
+          zIndex: 999,
         }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1f2937'} // gray-800
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1f2937'}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'black'}
       >
         <HelpCircle className="h-7 w-7" />
@@ -89,11 +103,11 @@ export function DraggableChat() {
       </Button>
       <CommandDialog open={open && !isTextModalVisible} onOpenChange={setOpen}>
         <div className="flex items-center space-x-4 p-2" style={{ padding: '6px' }}>
-          <Button 
-            variant="default" 
-            size="sm" 
+          <Button
+            variant="default"
+            size="sm"
             className="bg-black text-white hover:bg-gray-800"
-            onClick={handleCallAI} // Use the new handler here
+            onClick={handleCallAI}
           >
             <Phone className="h-4 w-4 mr-2" />
             Call AI
