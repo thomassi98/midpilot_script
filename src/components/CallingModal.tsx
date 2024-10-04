@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { Phone, Shield, Mic, MicOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,14 @@ interface CallingModalProps {
 }
 
 export function CallingModal({ onClose, isConnecting, isMuted, onToggleMute }: CallingModalProps) {
-  const [elapsedTime, setElapsedTime] = useState(0)
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [bounds, setBounds] = useState<{ left: number; top: number; right: number; bottom: number }>({
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+  });
 
   useEffect(() => {
     let interval: NodeJS.Timeout
@@ -24,6 +31,24 @@ export function CallingModal({ onClose, isConnecting, isMuted, onToggleMute }: C
     }
   }, [isConnecting])
 
+  useEffect(() => {
+    const updateBounds = () => {
+      if (modalRef.current) {
+        const modalRect = modalRef.current.getBoundingClientRect();
+        setBounds({
+          left: -modalRect.left,
+          top: -modalRect.top,
+          right: window.innerWidth - modalRect.right,
+          bottom: window.innerHeight - modalRect.bottom,
+        });
+      }
+    };
+
+    updateBounds();
+    window.addEventListener('resize', updateBounds);
+    return () => window.removeEventListener('resize', updateBounds);
+  }, []);
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -32,8 +57,9 @@ export function CallingModal({ onClose, isConnecting, isMuted, onToggleMute }: C
 
   return (
     <motion.div
+      ref={modalRef}
       drag
-      dragMomentum={false}
+      dragConstraints={bounds}
       className="fixed bottom-4 right-4 w-[300px] bg-white rounded-lg shadow-lg overflow-hidden"
       style={{ zIndex: 9999, cursor: 'grab' }}
       whileDrag={{ cursor: 'grabbing' }}

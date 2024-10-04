@@ -114,7 +114,7 @@ export function DraggableChat() {
           </Button>
           <div className="flex flex-1 items-center space-x-2" style={{ paddingLeft: '8px', paddingRight: '24px' }}>
             <CommandInput
-              placeholder="Ask anything about Inventory..."
+              placeholder="Ask anything about this page..."
               className="w-full h-9 py-2 px-3 focus:outline-none focus:ring-0 border-none"
               autoFocus
               onKeyDown={(e) => {
@@ -138,18 +138,11 @@ export function DraggableChat() {
           </CommandEmpty>
           <CommandGroup heading="Suggestions">
             <CommandItem 
-              onSelect={() => handleSuggestionClick("How do I create a dashboard?")}
+              onSelect={() => handleSuggestionClick("Suggestion coming soon!")}
               style={{ cursor: 'pointer' }}
             >
               <CornerDownRight className="mr-2 h-4 w-4" />
-              <span>How do I export my data to CSV?</span>
-            </CommandItem>
-            <CommandItem 
-              onSelect={() => handleSuggestionClick("What can I do on area insights?")}
-              style={{ cursor: 'pointer' }}
-            >
-              <CornerDownRight className="mr-2 h-4 w-4" />
-              <span>What can I see on the Analytics page?</span>
+              <span>Suggestion coming soon!</span>
             </CommandItem>
           </CommandGroup>
           
@@ -174,7 +167,7 @@ export function DraggableChat() {
           setIsTextModalVisible(false);
           setQuestion("");
         }}
-        onAskFollowUp={handleAskFollowUp}
+        // onAskFollowUp={handleAskFollowUp}
         question={question}
         isVisible={isTextModalVisible}
       />

@@ -1,9 +1,25 @@
 import { RetellWebClient } from 'retell-client-js-sdk';
 
 export class RetellClientService {
-  private webClient: RetellWebClient | null = null;
+  private webClient: RetellWebClient;
 
-  constructor(private agentId: string) {}
+  constructor(private agentId: string) {
+    this.webClient = new RetellWebClient();
+
+    // Set up event listeners once
+    this.webClient.on('call_started', () => {
+      // Will assign actual handler in `startConversation`
+    });
+
+    this.webClient.on('call_ended', () => {
+      // Will assign actual handler in `startConversation`
+    });
+
+    this.webClient.on('error', (error: Error) => {
+      console.error('An error occurred:', error);
+      // Will assign actual handler in `startConversation`
+    });
+  }
 
   public async startConversation(
     accessToken: string,
@@ -11,19 +27,14 @@ export class RetellClientService {
     onCallEnded: () => void,
     onError: (error: Error) => void
   ) {
-    if (this.webClient) {
-      this.webClient.stopCall();
-    }
-    this.webClient = new RetellWebClient();
+    // Remove previous event handlers to prevent duplication
+    this.webClient.off('call_started');
+    this.webClient.off('call_ended');
+    this.webClient.off('error');
 
-    this.webClient.on('call_started', () => {
-      onCallStarted();
-    });
-
-    this.webClient.on('call_ended', () => {
-      onCallEnded();
-    });
-
+    // Attach new event handlers
+    this.webClient.on('call_started', onCallStarted);
+    this.webClient.on('call_ended', onCallEnded);
     this.webClient.on('error', (error: Error) => {
       console.error('An error occurred:', error);
       onError(error);
@@ -38,20 +49,14 @@ export class RetellClientService {
   }
 
   public mute() {
-    if (this.webClient) {
-      this.webClient.mute();
-    }
+    this.webClient.mute();
   }
 
   public unmute() {
-    if (this.webClient) {
-      this.webClient.unmute();
-    }
+    this.webClient.unmute();
   }
 
   public stopConversation() {
-    if (this.webClient) {
-      this.webClient.stopCall();
-    }
+    this.webClient.stopCall();
   }
 }
