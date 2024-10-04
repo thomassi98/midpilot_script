@@ -37,6 +37,18 @@ export class RetellClientService {
     }
   }
 
+  public mute() {
+    if (this.webClient) {
+      this.webClient.mute();
+    }
+  }
+
+  public unmute() {
+    if (this.webClient) {
+      this.webClient.unmute();
+    }
+  }
+
   public stopConversation() {
     if (this.webClient) {
       this.webClient.stopCall();
