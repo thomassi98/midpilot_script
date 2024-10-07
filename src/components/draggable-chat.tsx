@@ -70,37 +70,44 @@ export function DraggableChat() {
 
   return (
     <>
+      {/* Conditionally render the HelpCircle Button when no modals are open */}
+      {!(isConnecting || isCalling || isTextModalVisible) && (
+        <Button
+          onClick={() => setOpen(true)}
+          variant="default"
+          size="icon"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '24px',
+            height: '56px',
+            width: '56px',
+            borderRadius: '9999px',
+            backgroundColor: 'black',
+            color: 'white',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            transition: 'background-color 0.2s ease',
+            zIndex: 999,
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1f2937'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'black'}
+        >
+          <HelpCircle className="h-7 w-7" />
+          <span className="sr-only">Open Help</span>
+        </Button>
+      )}
+
+      {/* Calling Modal */}
       {(isConnecting || isCalling) && (
         <CallingModal
-          onClose={handleClose} // Make sure handleClose sets both isCalling and isConnecting to false.
+          onClose={handleClose}
           isConnecting={isConnecting}
           isMuted={isMuted}
           onToggleMute={toggleMute}
         />
       )}
-      <Button
-        onClick={() => setOpen(true)}
-        variant="default"
-        size="icon"
-        style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          height: '56px',
-          width: '56px',
-          borderRadius: '9999px',
-          backgroundColor: 'black',
-          color: 'white',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-          transition: 'background-color 0.2s ease',
-          zIndex: 999,
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1f2937'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'black'}
-      >
-        <HelpCircle className="h-7 w-7" />
-        <span className="sr-only">Open Help</span>
-      </Button>
+
+      {/* Command Dialog */}
       <CommandDialog open={open && !isTextModalVisible} onOpenChange={setOpen}>
         <div className="flex items-center space-x-4 p-2" style={{ padding: '6px' }}>
           <Button
@@ -114,7 +121,7 @@ export function DraggableChat() {
           </Button>
           <div className="flex flex-1 items-center space-x-2" style={{ paddingLeft: '8px', paddingRight: '24px' }}>
             <CommandInput
-              placeholder="Ask anything about this page..."
+              placeholder="Ask anything about Plaace..."
               className="w-full h-9 py-2 px-3 focus:outline-none focus:ring-0 border-none"
               autoFocus
               onKeyDown={(e) => {
@@ -138,11 +145,25 @@ export function DraggableChat() {
           </CommandEmpty>
           <CommandGroup heading="Suggestions">
             <CommandItem 
-              onSelect={() => handleSuggestionClick("Suggestion coming soon!")}
+              onSelect={() => handleSuggestionClick("How do I get started?")}
               style={{ cursor: 'pointer' }}
             >
               <CornerDownRight className="mr-2 h-4 w-4" />
-              <span>Suggestion coming soon!</span>
+              <span>How do I get started?</span>
+            </CommandItem>
+            <CommandItem 
+              onSelect={() => handleSuggestionClick("How do I compare two areas?")}
+              style={{ cursor: 'pointer' }}
+            >
+              <CornerDownRight className="mr-2 h-4 w-4" />
+              <span>How do I compare two areas?</span>
+            </CommandItem>
+            <CommandItem 
+              onSelect={() => handleSuggestionClick("What can I do on Area Insights?")}
+              style={{ cursor: 'pointer' }}
+            >
+              <CornerDownRight className="mr-2 h-4 w-4" />
+              <span>What can I do on Area Insights?</span>
             </CommandItem>
           </CommandGroup>
           
@@ -162,15 +183,18 @@ export function DraggableChat() {
           </div>
         </CommandList>
       </CommandDialog>
-      <TextModal
-        onClose={() => {
-          setIsTextModalVisible(false);
-          setQuestion("");
-        }}
-        // onAskFollowUp={handleAskFollowUp}
-        question={question}
-        isVisible={isTextModalVisible}
-      />
+
+      {/* Text Modal */}
+      {isTextModalVisible && (
+        <TextModal
+          onClose={() => {
+            setIsTextModalVisible(false);
+            setQuestion("");
+          }}
+          question={question}
+          isVisible={isTextModalVisible}
+        />
+      )}
     </>
   )
 }
