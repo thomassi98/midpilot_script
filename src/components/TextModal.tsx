@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { motion, useMotionValue, useDragControls } from "framer-motion";
+import { motion, useDragControls } from "framer-motion";
 import { X, ChevronDown, ChevronUp, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,8 +77,13 @@ export function TextModal({
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalWidth]);
+
+  // Update drag constraints when modalWidth or isMinimized changes
+  useEffect(() => {
+    updateDragConstraints();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalWidth, isMinimized]);
 
   useEffect(() => {
     if (question) {
@@ -154,8 +159,8 @@ export function TextModal({
 
   const updateDragConstraints = () => {
     const viewportWidth = window.innerWidth;
-    const leftBoundary = 0;
-    const rightBoundary = viewportWidth - modalWidth;
+    const leftBoundary = -(viewportWidth - modalWidth);
+    const rightBoundary = 0;
 
     setDragConstraints({
       left: leftBoundary,
@@ -177,7 +182,7 @@ export function TextModal({
           height: isMinimized ? 'auto' : modalHeight,
           position: "fixed",
           bottom: 0,
-          left: 0,
+          right: 0,               // Changed from 'left: 0' to 'right: 0'
           zIndex: 1000,
           display: "flex",
           flexDirection: "column",
@@ -239,7 +244,7 @@ export function TextModal({
         {/* Modal Content */}
         {!isMinimized && (
           <div className="flex flex-col flex-grow overflow-hidden">
-            <div className="flex-grow space-y-4 overflow-y-auto px-4 pt-6" style={{paddingTop: 16}}>
+            <div className="flex-grow space-y-4 overflow-y-auto px-4 pt-6">
               {/* Messages */}
               {conversation.map((message, index) => (
                 <div
@@ -248,14 +253,14 @@ export function TextModal({
                   className={`flex ${message.role === "assistant" ? "flex-row" : "flex-row-reverse"} items-start`}
                 >
                   {message.role === "user" ? (
-                    <div className="flex flex-col space-y-4" style={{ marginBottom: 8 }}>
+                    <div className="flex flex-col space-y-4 mb-2">
                       <div>
                         <h3 style={{ fontSize: '0.625rem', color: '#6B7280', paddingBottom: '0.25rem' }}>Your question:</h3>
                         <p className="font-semibold text-lg text-gray-800">{message.content}</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-4" style={{ marginBottom: 32 }}>
+                    <div className="space-y-4 mb-8" style={{ marginBottom: '32px' }}>
                       <p className="text-sm">{message.content}</p>
                     </div>
                   )}
@@ -275,8 +280,8 @@ export function TextModal({
             {/* Bottom Bar */}
             <div className="px-4 pt-4 pb-4 bg-white border-t border-border">
               {/* Form content */}
-              <div style={{marginTop: 16, marginBottom: 16}}>
-                <p className="text-xs text-black " style={{ fontSize: '0.625rem', color: '#6B7280'}}>
+              <div className="mt-4 mb-4">
+                <p style={{ fontSize: '0.625rem', color: '#6B7280', marginBottom: '16px', marginTop: '16px' }}>
                   AI can make mistakes. Please double-check responses.
                 </p>
               </div>
