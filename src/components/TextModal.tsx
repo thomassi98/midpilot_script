@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { motion, useMotionValue } from "framer-motion";
+import { motion, useMotionValue, useDragControls } from "framer-motion";
 import { X, ChevronDown, ChevronUp, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,8 +41,8 @@ export function TextModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Motion value for horizontal dragging
-  const x = useMotionValue(0);
+  // Initialize drag controls
+  const dragControls = useDragControls();
 
   // Drag constraints
   const [dragConstraints, setDragConstraints] = useState({
@@ -55,6 +55,9 @@ export function TextModal({
 
   const [chevronHover, setChevronHover] = useState(false);
   const [closeHover, setCloseHover] = useState(false);
+
+  // State to track resizing
+  const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     // Set initial modal height to 2/3 of the viewport after component mounts
@@ -179,20 +182,25 @@ export function TextModal({
           display: "flex",
           flexDirection: "column",
           maxHeight: maxHeight,
-
         }}
+        className="bg-white rounded-md shadow-lg"
         drag="x"
         dragConstraints={dragConstraints}
         dragElastic={0}
         dragMomentum={false}
-        className="bg-white rounded-md shadow-lg"
-        
+        dragListener={false}          // Disable default drag listener
+        dragControls={dragControls}   // Attach drag controls
       >
         {/* Top Bar */}
-        <div
-          className="bg-white rounded-md px-4 h-12 flex items-center justify-between" // Changed from bg-black to bg-gray-200
-          style={{ flexShrink: 0, cursor: "move"}}
+        <motion.div
+          className="bg-white rounded-md px-4 h-12 flex items-center justify-between"
+          style={{ flexShrink: 0, cursor: "move" }}
           onMouseDown={handleDragOrResizeMouseDown}
+          onPointerDown={(event) => {
+            if (!isResizing) {
+              dragControls.start(event);
+            }
+          }}
         >
           <div className="flex items-center">
             <Button
@@ -226,7 +234,7 @@ export function TextModal({
               <X className="h-4 w-4" />
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Modal Content */}
         {!isMinimized && (
@@ -306,6 +314,7 @@ export function TextModal({
 
   function handleDragOrResizeMouseDown(e: React.MouseEvent) {
     e.preventDefault();
+    setIsResizing(true);
     const startY = e.clientY;
     const startHeight = modalHeight;
 
@@ -320,6 +329,7 @@ export function TextModal({
     }
 
     function onMouseUp() {
+      setIsResizing(false);
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onMouseUp);
     }
