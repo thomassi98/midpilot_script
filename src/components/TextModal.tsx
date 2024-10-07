@@ -25,6 +25,7 @@ export function TextModal({
   isVisible,
 }: TextModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const latestUserMessageRef = useRef<HTMLDivElement>(null);
 
   const [modalWidth] = useState(300); // Fixed width, no resizing
   const [isMinimized, setIsMinimized] = useState(false);
@@ -51,6 +52,9 @@ export function TextModal({
 
   // Store previous modal height to restore after minimizing
   const [prevModalHeight, setPrevModalHeight] = useState<number>(0);
+
+  const [chevronHover, setChevronHover] = useState(false);
+  const [closeHover, setCloseHover] = useState(false);
 
   useEffect(() => {
     // Set initial modal height to 2/3 of the viewport after component mounts
@@ -83,6 +87,13 @@ export function TextModal({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question]);
+
+  useEffect(() => {
+    // Scroll to the latest user message whenever the conversation changes
+    if (latestUserMessageRef.current) {
+      latestUserMessageRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [conversation]);
 
   async function fetchGuide(conversation: Message[]) {
     try {
@@ -168,17 +179,19 @@ export function TextModal({
           display: "flex",
           flexDirection: "column",
           maxHeight: maxHeight,
+
         }}
         drag="x"
         dragConstraints={dragConstraints}
         dragElastic={0}
         dragMomentum={false}
-        className="bg-white shadow-lg"
+        className="bg-white rounded-md shadow-lg"
+        
       >
         {/* Top Bar */}
         <div
-          className="bg-black px-4 h-12 flex items-center justify-between" // Increased padding and height
-          style={{ flexShrink: 0, cursor: "move", borderTopLeftRadius: 6, borderTopRightRadius: 6}}
+          className="bg-white rounded-md px-4 h-12 flex items-center justify-between" // Changed from bg-black to bg-gray-200
+          style={{ flexShrink: 0, cursor: "move"}}
           onMouseDown={handleDragOrResizeMouseDown}
         >
           <div className="flex items-center">
@@ -186,12 +199,16 @@ export function TextModal({
               variant="ghost"
               size="icon"
               onClick={toggleMinimize}
-              className="hover:bg-gray-200"
+              onMouseEnter={() => setChevronHover(true)}
+              onMouseLeave={() => setChevronHover(false)}
+              style={{
+                backgroundColor: chevronHover ? '#f3f4f6' : 'transparent',
+              }}
             >
               {isMinimized ? (
-                <ChevronUp className="h-4 w-4 text-white hover:text-gray-500" />
+                <ChevronUp className="h-4 w-4 text-black" />
               ) : (
-                <ChevronDown className="h-4 w-4 text-white hover:text-gray-500" />
+                <ChevronDown className="h-4 w-4 text-black" />
               )}
             </Button>
           </div>
@@ -200,9 +217,13 @@ export function TextModal({
               variant="ghost"
               size="icon"
               onClick={handleClose}
-              className="hover:bg-gray-200"
+              onMouseEnter={() => setCloseHover(true)}
+              onMouseLeave={() => setCloseHover(false)}
+              style={{
+                backgroundColor: closeHover ? '#f3f4f6' : 'transparent',
+              }}
             >
-              <X className="h-4 w-4 text-white hover:text-gray-500" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -210,26 +231,26 @@ export function TextModal({
         {/* Modal Content */}
         {!isMinimized && (
           <div className="flex flex-col flex-grow overflow-hidden">
-            <div className="flex-grow space-y-2 overflow-y-auto px-2 pt-6" style={{paddingTop: 16}}>
+            <div className="flex-grow space-y-4 overflow-y-auto px-4 pt-6" style={{paddingTop: 16}}>
               {/* Messages */}
               {conversation.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex ${
-                    message.role === "assistant"
-                      ? "flex-row"
-                      : "flex-row-reverse"
-                  } items-start`}
+                  ref={message.role === "user" ? latestUserMessageRef : null}
+                  className={`flex ${message.role === "assistant" ? "flex-row" : "flex-row-reverse"} items-start`}
                 >
-                  <div
-                    className={`rounded-md p-2 max-w-xs ${
-                      message.role === "assistant"
-                        ? "bg-black text-white"
-                        : "bg-white text-black shadow-lg"
-                    }`} style={{marginBottom: 8}}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                  </div>
+                  {message.role === "user" ? (
+                    <div className="flex flex-col space-y-4" style={{ marginBottom: 8 }}>
+                      <div>
+                        <h3 style={{ fontSize: '0.625rem', color: '#6B7280', paddingBottom: '0.25rem' }}>Your question:</h3>
+                        <p className="font-semibold text-lg text-gray-800">{message.content}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4" style={{ marginBottom: 32 }}>
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && (
@@ -247,7 +268,7 @@ export function TextModal({
             <div className="px-4 pt-4 pb-4 bg-white border-t border-border">
               {/* Form content */}
               <div style={{marginTop: 16, marginBottom: 16}}>
-                <p className="text-xs text-black ">
+                <p className="text-xs text-black " style={{ fontSize: '0.625rem', color: '#6B7280'}}>
                   AI can make mistakes. Please double-check responses.
                 </p>
               </div>
