@@ -278,7 +278,7 @@ export function TextModal({
               )}
             </div>
             {/* Bottom Bar */}
-            <div className="px-4 pt-4 pb-4 bg-white border-t border-border">
+            <div className="px-4 pt-4 bg-white border-t border-border" style={{ marginBottom: '24px' }}>
               {/* Form content */}
               <div className="mt-4 mb-4">
                 <p style={{ fontSize: '0.625rem', color: '#6B7280', marginBottom: '16px', marginTop: '16px' }}>
@@ -286,6 +286,7 @@ export function TextModal({
                 </p>
               </div>
               <form
+                style={{ margin: '0px' }}
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleAskFollowUp(followUpQuestion);
