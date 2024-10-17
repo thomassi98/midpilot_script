@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-import { motion, useDragControls } from "framer-motion";
-import { X, ChevronDown, ChevronUp, ChevronRight } from "lucide-react";
+import { motion, useDragControls, animate, useMotionValue } from "framer-motion";
+import { X, ChevronDown, ChevronUp, ChevronRight, Hand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getGuide, Message } from "../services/getGuide";
@@ -15,8 +15,8 @@ interface TextModalProps {
 
 const getAgentId = (): string | null => {
   const scriptTag =
-    document.currentScript || document.querySelector("script[agent-id]");
-  return scriptTag ? scriptTag.getAttribute("agent-id") : null;
+    document.currentScript || document.querySelector("script[data-agent-id]");
+  return scriptTag ? scriptTag.getAttribute("data-agent-id") : null;
 };
 
 export function TextModal({
@@ -50,6 +50,9 @@ export function TextModal({
     right: 0,
   });
 
+  // Replace position state with MotionValue for 'x'
+  const x = useMotionValue(0); // Start at the right edge
+
   // Store previous modal height to restore after minimizing
   const [prevModalHeight, setPrevModalHeight] = useState<number>(0);
 
@@ -59,11 +62,17 @@ export function TextModal({
   // State to track resizing
   const [isResizing, setIsResizing] = useState(false);
 
+  // Define snapping threshold at the top
+  const snappingThreshold = 50; // Pixels
+
+  // New state variable to track dragging
+  const [isDragging, setIsDragging] = useState(false);
+
   useEffect(() => {
     // Set initial modal height to 2/3 of the viewport after component mounts
     const initialHeight = window.innerHeight * 0.66;
     setModalHeight(initialHeight);
-    setMaxHeight(window.innerHeight - 100);
+    setMaxHeight(window.innerHeight - 20);
 
     updateDragConstraints();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,7 +81,7 @@ export function TextModal({
   // Update maxHeight and drag constraints on window resize
   useEffect(() => {
     const handleResize = () => {
-      setMaxHeight(window.innerHeight - 100);
+      setMaxHeight(window.innerHeight);
       updateDragConstraints();
     };
     window.addEventListener("resize", handleResize);
@@ -110,7 +119,7 @@ export function TextModal({
       const agentId = getAgentId();
       if (!agentId) {
         console.error(
-          "Agent ID not provided. Please include agent-id attribute in the script tag."
+          "Agent ID not provided. Please include data-agent-id attribute in the script tag."
         );
         return;
       }
@@ -141,15 +150,12 @@ export function TextModal({
 
   const toggleMinimize = () => {
     if (!isMinimized) {
-      // Save current height before minimizing
       setPrevModalHeight(modalHeight);
     } else {
-      // Restore previous height when maximizing
       setModalHeight(prevModalHeight);
     }
     setIsMinimized(!isMinimized);
 
-    // Update drag constraints after changing minimized state
     updateDragConstraints();
   };
 
@@ -158,8 +164,7 @@ export function TextModal({
   };
 
   const updateDragConstraints = () => {
-    const viewportWidth = window.innerWidth;
-    const leftBoundary = -(viewportWidth - modalWidth);
+    const leftBoundary = -(window.innerWidth - modalWidth);
     const rightBoundary = 0;
 
     setDragConstraints({
@@ -168,7 +173,41 @@ export function TextModal({
     });
   };
 
-  // **Conditional Rendering based on isVisible**
+  // Add snap points
+  const snapPoints = [0, -(window.innerWidth - modalWidth)]; // Right and left positions
+
+  function handleDragStart(event: any, info: any) {
+    setIsDragging(true);    // Set isDragging to true when drag starts
+  }
+
+  function handleDragEnd(event: any, info: any) {
+    setIsDragging(false);   // Set isDragging to false when drag ends
+    // Existing handleDragEnd code
+    const currentX = x.get();
+    const closestSnapPoint = snapPoints.reduce((prev, curr) => {
+      return Math.abs(curr - currentX) < Math.abs(prev - currentX) ? curr : prev;
+    });
+
+    const distanceToSnapPoint = Math.abs(closestSnapPoint - currentX);
+
+    if (distanceToSnapPoint <= snappingThreshold) {
+      // Animate to the closest snap point
+      animate(x, closestSnapPoint, {
+        type: "spring",
+        stiffness: 500,
+        damping: 30,
+      });
+    } else {
+      // Settle at the current position
+      animate(x, currentX, {
+        type: "spring",
+        stiffness: 500,
+        damping: 30,
+      });
+    }
+  }
+
+  // Conditional Rendering based on isVisible
   if (!isVisible) {
     return null;
   }
@@ -182,24 +221,27 @@ export function TextModal({
           height: isMinimized ? 'auto' : modalHeight,
           position: "fixed",
           bottom: 0,
-          right: 0,               // Changed from 'left: 0' to 'right: 0'
+          right: 0, // Anchor to the right
           zIndex: 1000,
           display: "flex",
           flexDirection: "column",
           maxHeight: maxHeight,
+          x, // Use the MotionValue 'x' here
         }}
         className="bg-white rounded-md shadow-lg"
         drag="x"
         dragConstraints={dragConstraints}
         dragElastic={0}
         dragMomentum={false}
-        dragListener={false}          // Disable default drag listener
-        dragControls={dragControls}   // Attach drag controls
+        dragListener={false}
+        dragControls={dragControls}
+        onDragStart={handleDragStart}    // Add onDragStart handler
+        onDragEnd={handleDragEnd}        // Modify existing onDragEnd handler
       >
         {/* Top Bar */}
         <motion.div
           className="bg-white rounded-md px-4 h-12 flex items-center justify-between"
-          style={{ flexShrink: 0, cursor: "move" }}
+          style={{ flexShrink: 0, cursor: isDragging ? "grabbing" : "grab" }}   // Update cursor style
           onMouseDown={handleDragOrResizeMouseDown}
           onPointerDown={(event) => {
             if (!isResizing) {

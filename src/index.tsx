@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from '@containers/App';
 import { domReady } from '@utils/domReady';
 import { ShadowRootProvider } from '@/ShadowRootContext';
+import { checkUserAccess, isScriptHostedOn } from '@utils/plaaceUtils';
 //import ChatButton from '@components/ChatButton';
 
 // Import the compiled CSS as a string
@@ -31,14 +32,26 @@ domReady(() => {
     // Create a React root within the Shadow DOM
     const root = ReactDOM.createRoot(shadowRoot);
 
-    root.render(
-//      <div>
-//        <ChatButton />
+    if (isScriptHostedOn('plaace')) {
+      console.log("Script is hosted on plaace")
+      checkUserAccess({allowAll: true}).then((hasAccess) => {
+        if (hasAccess) {
+          root.render(
+            <ShadowRootProvider shadowRoot={shadowRoot}>
+              <App />
+            </ShadowRootProvider>
+          );
+        } else {
+          console.log('Access to Midpilot denied');
+        }
+      });
+    } else {
+      root.render(
         <ShadowRootProvider shadowRoot={shadowRoot}>
           <App />
         </ShadowRootProvider>
-//      </div>
-    );
+      );
+    }
   } catch (error) {
     console.error('Error initializing the React application:', error);
   }

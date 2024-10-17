@@ -4,6 +4,8 @@
   "description": "Script tag for integrating midpilot",
   "main": "midpilot.js",
   "scripts": {
+    "build": "webpack",
+    "build:test": "webpack --env TEST=true",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

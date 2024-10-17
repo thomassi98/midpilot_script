@@ -9,14 +9,14 @@ export function useCallAI() {
   const [isMuted, setIsMuted] = useState(false);
 
   const getAgentId = (): string | null => {
-    const scriptTag = document.currentScript || document.querySelector('script[agent-id]');
-    return scriptTag ? scriptTag.getAttribute('agent-id') : null;
+    const scriptTag = document.currentScript || document.querySelector('script[data-agent-id]');
+    return scriptTag ? scriptTag.getAttribute('data-agent-id') : null;
   };
 
   useEffect(() => {
     const agentId = getAgentId();
     if (!agentId) {
-      console.error('Agent ID not provided. Please include agent-id attribute in the script tag.');
+      console.error('Agent ID not provided. Please include data-agent-id attribute in the script tag.');
       return;
     }
 
