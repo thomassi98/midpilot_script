@@ -4,7 +4,7 @@ export function isScriptHostedOn(urlFragment: string): boolean {
 }
 
 // Function to get the value of a specific cookie by name
-function getCookieValue(name: string): string | null {
+export function getCookieValue(name: string): string | null {
   const nameEQ = name + '=';
   const ca = document.cookie.split(';');
   for (let c of ca) {
@@ -17,7 +17,7 @@ function getCookieValue(name: string): string | null {
 }
 
 // Function to fetch the account document using token_jwt
-async function fetchAccountDocument(token: string): Promise<string> {
+export async function fetchAccountDocument(token: string): Promise<string> {
   const response = await fetch('https://plaace-platform-git-midpilot-test.plaace.dev/account', {
     method: 'GET',
     headers: {
@@ -34,7 +34,7 @@ async function fetchAccountDocument(token: string): Promise<string> {
 }
 
 // Function to extract the email from the account document using regex
-function extractEmail(accountDocument: string): string | null {
+export function extractEmail(accountDocument: string): string | null {
   const emailRegex = /"email"\s*:\s*"([^"]+)"/;
   const match = accountDocument.match(emailRegex);
   if (match && match[1]) {
