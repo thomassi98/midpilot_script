@@ -1,0 +1,53 @@
+<!-- <script src="dist/midpilot.bundle.js" data-agent-id="agent_54d4bf6cadfd9681134259c409"></script> -->
+
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-59K5L8R8');</script>
+    <!-- End Google Tag Manager -->
+<link rel="stylesheet" href="testGlobals.css">
+<!-- <script src="../dist/midpilot.bundle.js" data-agent-id="agent_ff64baa79b1bc0dd81f561d4d3"></script> -->
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-59K5L8R8"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+ testSite
+ <!-- Add buttons -->
+ <button>Button 1</button>
+ <button>Button 2</button>
+ <button>Button 3</button>
+</body>
+
+
+<!-- 
+Troubleshooting: 
+
+In plaace, it seems like the script tag was formatted like this:
+<script data-gtmsrc="https://cdn.midpilot.com/midpilot.bundle.js" data-agent-id="agent_54d4bf6cadfd9681134259c409" type="text/gtmscript"></script>
+
+This doesnt reproduce the error 100% on my side. In plaace its rendered without the variable working,
+on my side it doesnt work at all.
+
+This might be because:
+* It was not set as a custom html tag
+* Some security policy overrides it *
+* The user has modified the script tag
+* GTM is configured in a different way than my GTM
+
+
+Solutions:
+1. Check that the script tag is set as a custom html tag, and correctly formatted
+2. Change to dynamic script tag:
+<script>
+    (function() {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.midpilot.com/midpilot.bundle.js';
+        script.setAttribute('data-agent-id', 'agent_ff64baa79b1bc0dd81f561d4d3');
+        document.head.appendChild(script);
+    })();
+    </script> -->
